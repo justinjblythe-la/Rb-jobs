@@ -2,72 +2,112 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=600, height=600, initial-scale=1.0, user-scalable=no">
-<meta name="description" content="RB Cable jobs at a glance: today, this week, and what needs action.">
+<meta name="viewport" content="width=600,height=600,initial-scale=1">
 <meta name="mrbd-web-app-capable" content="yes">
+<meta name="robots" content="noindex,nofollow">
 <title>RB Jobs</title>
-<link rel="icon" href="icon-96.png" sizes="96x96">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="96x96" href="icon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <style>
+/* Additive display: black = see-through, bright = visible. */
 :root{
-  --ink:#FFFFFF; --dim:#B9C2BE; --line:#4A5550;
-  --orange:#FF8A3D; --red:#FF5E52; --blue:#62B4FF; --green:#5FE08F; --amber:#FFCB52; --brown:#E0A070;
+  --bg:#000; --ink:#F4F4F0; --dim:#A9B0AD; --faint:#5E6663;
+  --orange:#FF9A4D; --blue:#7DB8FF; --red:#FF6F66; --amber:#FFD15C; --green:#73E0A0;
+  --tile:#141414; --line:#2A2A2A;
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:#000}
-body{width:600px;height:600px;overflow:hidden;color:var(--ink);
-  font:20px/1.3 -apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
-#app{position:absolute;inset:0;padding:22px 26px;display:flex;flex-direction:column;gap:12px}
-h1{margin:0;font-size:28px;line-height:1.15;font-weight:700}
-.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
-.top .sm{color:var(--dim);font-size:17px;white-space:nowrap}
-.scroll{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:3px}
-.f{outline:none}
-.btn,.row{display:flex;align-items:center;gap:14px;min-height:88px;padding:10px 18px;border:2px solid var(--line);
-  border-radius:16px;background:transparent;color:var(--ink);font:inherit;text-align:left;width:100%;flex:none}
-.btn:focus,.row:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange);background:#2a1608}
-.btn .n{font-size:40px;font-weight:700;min-width:62px;text-align:center;font-variant-numeric:tabular-nums}
-.btn .l{font-size:24px;font-weight:600}
-.btn .h{font-size:16px;color:var(--dim)}
-.red{color:var(--red)} .blue{color:var(--blue)} .amber{color:var(--amber)} .green{color:var(--green)} .orange{color:var(--orange)}
-.row{border-left-width:8px}
-.row .tx{flex:1;min-width:0}
-.row .t{font-size:22px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .s{font-size:17px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .d{font-size:19px;font-weight:700;white-space:nowrap;text-align:right}
-.st-action{border-left-color:var(--orange)} .st-scheduled{border-left-color:var(--blue)}
-.st-waiting{border-left-color:var(--amber)} .st-open{border-left-color:var(--dim)}
-.st-check{border-left-color:var(--brown)} .st-done{border-left-color:var(--green)}
-.st-overdue{border-left-color:var(--red)}
-.empty{color:var(--dim);font-size:22px;text-align:center;padding:60px 20px}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:600px;height:600px;overflow:hidden;background:var(--bg);color:var(--ink);
+  font:22px/1.3 -apple-system,"Roboto","Segoe UI",system-ui,sans-serif}
+body{padding:24px 28px}
+.view{display:none;width:100%;height:552px;flex-direction:column}
+.view.on{display:flex}
+:focus{outline:none}
+.f:focus,.f.cur{box-shadow:0 0 0 3px var(--orange);}
+
+/* header */
+.hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;height:44px;flex:none}
+.hd h1{font-size:26px;font-weight:700;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd .pg{font-size:18px;color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums}
+.hint{flex:none;height:28px;font-size:16px;color:var(--faint);display:flex;align-items:flex-end}
+
+/* PIN */
+#lock{align-items:center}
+#lock h1{font-size:28px;margin-top:6px}
+.dots{display:flex;gap:14px;height:40px;align-items:center;margin:10px 0 14px}
+.dots i{width:18px;height:18px;border-radius:50%;border:2px solid var(--dim)}
+.dots i.on{background:var(--ink);border-color:var(--ink)}
+.keys{display:grid;grid-template-columns:repeat(3,108px);gap:10px}
+.keys button{height:76px;border:0;border-radius:14px;background:var(--tile);color:var(--ink);font-family:inherit;font-size:32px;font-weight:600;line-height:1}
+.keys button.sm{font-size:20px;color:var(--dim)}
+.msg{height:30px;font-size:18px;color:var(--dim);margin-top:12px}
+.msg.err{color:var(--red)}
+
+/* home */
+.sync{flex:none;font-size:17px;color:var(--dim);height:24px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tiles{flex:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:14px}
+.tile{border:0;border-radius:18px;background:var(--tile);color:var(--ink);text-align:left;padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between;font-family:inherit;min-width:0;overflow:hidden}
+.tile>span:last-child{display:block;min-width:0}
+.tile .s{display:block}
+.tile .n{font-size:64px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.tile .l{font-size:22px;font-weight:600}
+.tile .s{font-size:16px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.red .n{color:var(--red)} .tile.blue .n{color:var(--blue)} .tile.amber .n{color:var(--amber)} .tile.orange .n{color:var(--orange)}
+
+/* list */
+.rows{flex:1;display:flex;flex-direction:column;gap:8px;margin-top:6px;overflow:hidden}
+.row{flex:none;height:86px;border-radius:12px;background:var(--tile);padding:10px 14px 10px 18px;position:relative;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;column-gap:12px;align-content:center}
+.row::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:5px;border-radius:3px;background:var(--c,var(--faint))}
+.row .t{font-size:21px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .w{font-size:19px;font-weight:700;text-align:right;white-space:nowrap;color:var(--c2,var(--ink))}
+.row .m{grid-column:1/-1;font-size:17px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{color:var(--dim);font-size:22px;padding:40px 0;text-align:center}
+
 /* detail */
-.det{flex:1;overflow:hidden;position:relative}
-.det .inner{display:flex;flex-direction:column;gap:12px;padding-bottom:40px}
-.pill{display:inline-block;font-size:15px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
-  border:2px solid currentColor;border-radius:999px;padding:2px 10px}
-.next{border:2px solid var(--orange);border-radius:12px;padding:10px 14px;font-size:21px}
-.next b{color:var(--orange)}
-.kv{font-size:19px}
-.kv b{color:var(--dim);font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.6px;display:block}
-.hint{color:var(--dim);font-size:15px;text-align:center}
-.small-btn{min-height:64px;justify-content:center;font-weight:600;font-size:20px}
-/* pin */
-input{width:100%;min-height:88px;font:600 34px/1 inherit;letter-spacing:6px;text-align:center;color:var(--ink);
-  background:transparent;border:2px solid var(--line);border-radius:16px;outline:none}
-input:focus{border-color:var(--orange);box-shadow:0 0 0 3px var(--orange)}
-.msg{font-size:18px;color:var(--dim);text-align:center;min-height:24px}
-.more{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:15px;color:var(--orange);background:#000;padding-top:4px}
+.dpage{flex:1;overflow:hidden;display:flex;flex-direction:column;gap:12px;margin-top:4px}
+.blk .k{font-size:15px;text-transform:uppercase;letter-spacing:1px;color:var(--faint);margin-bottom:2px}
+.blk .v{font-size:22px;line-height:1.32}
+.blk.big .v{font-size:26px;font-weight:700;line-height:1.2}
+.blk.next .v{color:var(--orange)}
+.pill{display:inline-block;font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--c,var(--dim))}
+#measure{position:absolute;left:-9999px;top:0;width:544px;visibility:hidden}
 </style>
 </head>
 <body>
-<div id="app"><div class="empty">Loading…</div></div>
+
+<section class="view on" id="lock" aria-label="Unlock">
+  <h1>RB Jobs</h1>
+  <div class="dots" id="dots"></div>
+  <div class="keys" id="keys"></div>
+  <div class="msg" id="lockMsg">Enter PIN</div>
+</section>
+
+<section class="view" id="home" aria-label="Summary">
+  <div class="hd"><h1>RB Cable Jobs</h1><span class="pg" id="today"></span></div>
+  <div class="sync" id="sync"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="hint">Swipe to pick · pinch to open</div>
+</section>
+
+<section class="view" id="list" aria-label="Jobs">
+  <div class="hd"><h1 id="listTitle"></h1><span class="pg" id="listPg"></span></div>
+  <div class="rows" id="rows"></div>
+  <div class="hint" id="listHint">Up/down to move · pinch to open · back to return</div>
+</section>
+
+<section class="view" id="detail" aria-label="Job">
+  <div class="hd"><span class="pill" id="dStatus"></span><span class="pg" id="dPg"></span></div>
+  <div class="dpage" id="dpage" tabindex="0"></div>
+  <div class="hint">Swipe for more · back to return</div>
+</section>
+
+<div id="measure" aria-hidden="true"></div>
+
 <script>
 "use strict";
-const app = document.getElementById("app");
+const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const PIN_KEY = "rbjobs.pin";
-let DATA = null; // {generated, jobs:[]}
-
-/* ---------- storage (wrapped) ---------- */
+const PIN_LEN = 6, KEEP_HOURS = 12, KEY_STORE = "rbjobs.k";
 const store = {
   get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} },
@@ -76,217 +116,278 @@ const store = {
 
 /* ---------- crypto ---------- */
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-async function decrypt(pack, pin){
-  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"]);
-  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(pack.salt), iterations:pack.iter, hash:"SHA-256"},
-    base, {name:"AES-GCM", length:256}, false, ["decrypt"]);
-  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(pack.iv)}, key, b64(pack.ct));
+const toB64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+let blob = null;
+async function loadBlob(){
+  const r = await fetch("data.json?t=" + Date.now(), {cache:"no-store"});
+  if(!r.ok) throw new Error("fetch");
+  return r.json();
+}
+async function deriveRaw(pin, b){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveBits"]);
+  return crypto.subtle.deriveBits({name:"PBKDF2", hash:"SHA-256", salt:b64(b.salt), iterations:b.iter}, base, 256);
+}
+async function decryptWith(raw, b){
+  const key = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(b.iv)}, key, b64(b.ct));
   return JSON.parse(new TextDecoder().decode(pt));
 }
 
 /* ---------- dates ---------- */
 function today(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
 function parse(s){ if(!s) return null; const [y,m,d]=s.slice(0,10).split("-").map(Number); return new Date(y,m-1,d); }
-function days(s){ const d=parse(s); return d ? Math.round((d-today())/864e5) : null; }
-function fmt(s){ const d=parse(s); return d ? d.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"}) : ""; }
-function shortDay(s){
-  const n=days(s); if(n===null) return "";
-  if(n===0) return "Today"; if(n===1) return "Tmrw"; if(n===-1) return "Yest.";
-  const d=parse(s); return (n>1&&n<7) ? d.toLocaleDateString("en-US",{weekday:"short"}) : d.toLocaleDateString("en-US",{month:"numeric",day:"numeric"});
+function daysTo(s){ const d=parse(s); return d ? Math.round((d-today())/864e5) : null; }
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function short(s){ const d=parse(s); return d ? `${d.getMonth()+1}/${d.getDate()}` : ""; }
+function rel(s){
+  const n = daysTo(s); if(n===null) return "";
+  if(n===0) return "Today"; if(n===1) return "Tmrw"; if(n===-1) return "Yest";
+  if(n>1 && n<7) return DOW[parse(s).getDay()];
+  return short(s);
 }
-
-/* ---------- job logic (matches the main board) ---------- */
-const open = j => j.status !== "done";
-const overdue = j => open(j) && j.due && days(j.due) < 0;
 const keyDate = j => j.due || j.start || null;
+const isOverdue = j => j.due && daysTo(j.due) < 0;
 function isToday(j){
-  if(!open(j)) return false;
-  if(j.due && days(j.due)===0) return true;
-  if(j.start){ const s=days(j.start), e=j.end?days(j.end):s; return s<=0 && e>=0; }
-  return false;
+  if(j.start && j.end) return daysTo(j.start) <= 0 && daysTo(j.end) >= 0;
+  const k = keyDate(j); return k && daysTo(k) === 0;
 }
-function nextWeek(j){ const k=keyDate(j); if(!k||!open(j)) return false; const n=days(k); return n>=1 && n<=7; }
-const STATUS = {action:["Action needed","orange"],scheduled:["Scheduled","blue"],waiting:["Waiting on others","amber"],
-  open:["Open request","dim"],check:["Confirm done?","amber"],done:["Done","green"]};
-const byDate = (a,b) => (keyDate(a)||"9999").localeCompare(keyDate(b)||"9999") || (a.title||"").localeCompare(b.title||"");
+function inWeek(j){ const k=keyDate(j); if(!k) return false; const n=daysTo(k); return (n>=0 && n<=7) || isToday(j); }
 
-const LISTS = {
-  today:  {label:"Today",        cls:"blue",   hint:"On site or due today",   f:isToday},
-  overdue:{label:"Past due",     cls:"red",    hint:"Deadline has passed",    f:overdue},
-  week:   {label:"Next 7 days",  cls:"",       hint:"Scheduled or due",       f:nextWeek},
-  action: {label:"Need action",  cls:"orange", hint:"You owe a next step",    f:j=>open(j)&&(j.status==="action"||j.status==="check")},
-  all:    {label:"All open",     cls:"",       hint:"Everything not done",    f:open}
+const STATUS = {
+  action:["Action needed","var(--orange)"], scheduled:["Scheduled","var(--blue)"],
+  waiting:["Waiting","var(--amber)"], open:["Open","var(--dim)"], check:["Confirm done?","var(--dim)"], done:["Done","var(--green)"]
 };
 
-/* ---------- views ---------- */
-let focusMemory = {};
-function view(){ return history.state || {v:"home"}; }
-function go(state){ history.pushState(state, ""); render(); }
+/* ---------- state + navigation ---------- */
+let data = null, jobs = [];
+let view = "lock", listKey = null, listItems = [], listIdx = 0, homeIdx = 0;
+let detailJob = null, dPages = [], dIdx = 0;
+const ROWS_PER_PAGE = 5;
 
-function render(){
-  if(!DATA) return;
-  const st = view();
-  if(st.v==="list") return renderList(st.k);
-  if(st.v==="job") return renderJob(st.id);
-  renderHome();
+function show(id){
+  document.querySelectorAll(".view").forEach(v => v.classList.toggle("on", v.id === id));
+  view = id;
+}
+function go(id, push){
+  const st = {v:id, listKey, listIdx, homeIdx, jobId: detailJob && detailJob.id};
+  if(push) history.pushState(st, ""); else history.replaceState(st, "");
+  show(id); paint();
+}
+window.addEventListener("popstate", e => {
+  const st = e.state;
+  if(!data){ show("lock"); return; }
+  if(!st || st.v === "lock" || st.v === "home"){ show("home"); paint(); return; }
+  listKey = st.listKey; listIdx = st.listIdx || 0; homeIdx = st.homeIdx || 0;
+  if(st.v === "list"){ buildList(); show("list"); paint(); }
+  else if(st.v === "detail"){ buildList(); detailJob = jobs.find(j => j.id === st.jobId); if(detailJob){ show("detail"); buildDetail(); paint(); } else { show("list"); paint(); } }
+});
+
+function paint(){
+  if(view === "home") paintHome();
+  else if(view === "list") paintList();
+  else if(view === "detail") paintDetail();
 }
 
-function updatedLine(){
-  if(!DATA.generated) return "";
-  const d=new Date(DATA.generated);
-  return d.toLocaleString("en-US",{weekday:"short",hour:"numeric",minute:"2-digit"});
+/* ---------- lock ---------- */
+let pin = "";
+const KEYS = ["1","2","3","4","5","6","7","8","9","clr","0","del"];
+let keyIdx = 4;
+function paintLock(){
+  $("#dots").innerHTML = Array.from({length:PIN_LEN}, (_,i) => `<i class="${i<pin.length?"on":""}"></i>`).join("");
+  $("#keys").innerHTML = KEYS.map((k,i) => `<button class="f ${k.length>1?"sm":""}" data-k="${k}" data-i="${i}">${k==="clr"?"Clear":k==="del"?"⌫":k}</button>`).join("");
+  focusKey();
 }
-
-function renderHome(){
-  const jobs = DATA.jobs;
-  const order = ["today","overdue","week","action","all"];
-  app.innerHTML = `<div class="top"><h1>RB Jobs</h1><span class="sm">Updated ${esc(updatedLine())}</span></div>
-    <div class="scroll" id="sc">${order.map(k=>{
-      const L=LISTS[k], n=jobs.filter(L.f).length;
-      if(k==="overdue" && !n) return "";
-      return `<button class="btn f" data-k="${k}"><span class="n ${n?L.cls:""}">${n}</span><span><div class="l">${L.label}</div><div class="h">${L.hint}</div></span></button>`;
-    }).join("")}</div>`;
-  app.querySelectorAll("[data-k]").forEach(b => b.onclick = () => go({v:"list",k:b.dataset.k}));
-  restoreFocus("home");
+function focusKey(){ const b = $(`#keys [data-i="${keyIdx}"]`); b && b.focus(); }
+async function pressKey(k){
+  if(k === "clr"){ pin = ""; }
+  else if(k === "del"){ pin = pin.slice(0,-1); }
+  else if(pin.length < PIN_LEN){ pin += k; }
+  $("#dots").innerHTML = Array.from({length:PIN_LEN}, (_,i) => `<i class="${i<pin.length?"on":""}"></i>`).join("");
+  $("#lockMsg").className = "msg"; $("#lockMsg").textContent = "Enter PIN";
+  if(pin.length === PIN_LEN) await tryUnlock();
 }
-
-function renderList(k){
-  const L = LISTS[k] || LISTS.all;
-  const items = DATA.jobs.filter(L.f).sort(byDate);
-  app.innerHTML = `<div class="top"><h1 class="${L.cls}">${L.label}</h1><span class="sm">${items.length} job${items.length===1?"":"s"}</span></div>
-    <div class="scroll" id="sc">${items.length ? items.map(j=>{
-      const od=overdue(j), k=keyDate(j);
-      const dl = L===LISTS.today ? (j.due ? "Due "+shortDay(j.due) : "On site") : (k?shortDay(k):"");
-      return `<button class="row f st-${od?"overdue":esc(j.status)}" data-id="${esc(j.id)}">
-        <span class="tx"><div class="t">${esc(j.title)}</div><div class="s">${esc(j.site||j.client||"")}</div></span>
-        <span class="d ${od?"red":""}">${esc(dl)}</span></button>`;
-    }).join("") : `<div class="empty">Nothing here.</div>`}</div>`;
-  app.querySelectorAll("[data-id]").forEach(b => b.onclick = () => go({v:"job",id:b.dataset.id}));
-  restoreFocus("list:"+k);
-}
-
-function renderJob(id){
-  const j = DATA.jobs.find(x=>x.id===id);
-  if(!j){ history.replaceState({v:"home"},""); return renderHome(); }
-  const [sl, sc] = STATUS[j.status] || STATUS.open;
-  const od = overdue(j);
-  const when = [
-    j.start ? `${fmt(j.start)}${j.end&&j.end!==j.start?" – "+fmt(j.end):""}` : "",
-    j.due ? `Due ${fmt(j.due)}` : ""
-  ].filter(Boolean).join(" · ");
-  const last = (j.updates||[]).slice(-1)[0];
-  app.innerHTML = `
-    <div class="top"><h1>${esc(j.title)}</h1></div>
-    <div><span class="pill ${od?"red":sc}" style="${sc==="dim"?"color:var(--dim)":""}">${od?"Past due":esc(sl)}</span>
-      ${j.ref?` <span class="sm" style="color:var(--dim);font-size:17px">${esc(j.ref)}</span>`:""}</div>
-    <button class="btn f small-btn" id="say">🔊  Read aloud</button>
-    <div class="det" id="det"><div class="inner" id="inner">
-      ${when?`<div class="kv ${od?"red":""}"><b>When</b>${esc(when)}</div>`:""}
-      ${j.next?`<div class="next"><b>Next:</b> ${esc(j.next)}</div>`:""}
-      ${j.site?`<div class="kv"><b>Site</b>${esc(j.site)}</div>`:""}
-      ${j.contact?`<div class="kv"><b>Contact</b>${esc(j.contact)}</div>`:""}
-      ${j.scope?`<div class="kv"><b>Scope</b>${esc(j.scope)}</div>`:""}
-      ${last?`<div class="kv"><b>Last update · ${esc(fmt(last.on))}</b>${esc(last.text)}</div>`:""}
-      ${j.notes?`<div class="kv"><b>Notes</b>${esc(j.notes)}</div>`:""}
-      ${j.client?`<div class="kv"><b>Client</b>${esc(j.client)}</div>`:""}
-    </div><div class="more" id="more">▼ more</div></div>`;
-  document.getElementById("say").onclick = () => speak(j, when);
-  document.getElementById("say").focus();
-  updateMore();
-}
-
-function updateMore(){
-  const det=document.getElementById("det"), m=document.getElementById("more");
-  if(!det||!m) return;
-  m.style.display = det.scrollTop + det.clientHeight < det.scrollHeight - 4 ? "" : "none";
-}
-
-function speak(j, when){
+async function tryUnlock(){
+  $("#lockMsg").textContent = "Unlocking…";
   try{
-    const ss = window.speechSynthesis; if(!ss) return;
-    if(ss.speaking){ ss.cancel(); return; }
-    const parts = [j.title, when, j.next ? "Next: "+j.next : "", j.site ? "At "+j.site : "", j.contact ? "Contact: "+j.contact : ""];
-    const u = new SpeechSynthesisUtterance(parts.filter(Boolean).join(". ").replace(/·/g,","));
-    u.lang="en-US"; u.rate=1.05; ss.speak(u);
-  }catch(_){}
+    if(!blob) blob = await loadBlob();
+    const raw = await deriveRaw(pin, blob);
+    const d = await decryptWith(raw, blob);
+    store.set(KEY_STORE, JSON.stringify({k:toB64(raw), salt:blob.salt, exp:Date.now()+KEEP_HOURS*36e5}));
+    pin = ""; start(d);
+  }catch(err){
+    pin = "";
+    $("#lockMsg").className = "msg err";
+    $("#lockMsg").textContent = (err && err.message === "fetch") ? "Can't reach job data. Check connection." : "Wrong PIN";
+    $("#dots").innerHTML = Array.from({length:PIN_LEN}, () => `<i></i>`).join("");
+  }
+}
+async function autoUnlock(){
+  const saved = store.get(KEY_STORE);
+  try{ blob = await loadBlob(); }catch(_){ return false; }
+  if(!saved) return false;
+  try{
+    const s = JSON.parse(saved);
+    if(s.exp < Date.now() || s.salt !== blob.salt){ store.del(KEY_STORE); return false; }
+    start(await decryptWith(b64(s.k), blob)); return true;
+  }catch(_){ store.del(KEY_STORE); return false; }
 }
 
-/* ---------- focus + keys ---------- */
-function focusables(){ return [...app.querySelectorAll(".f")]; }
-function restoreFocus(key){
-  const fs = focusables(); if(!fs.length) return;
-  const i = Math.min(focusMemory[key] ?? 0, fs.length-1);
-  fs[i].focus({preventScroll:true}); fs[i].scrollIntoView({block:"nearest"});
+/* ---------- home ---------- */
+function start(d){
+  data = d; jobs = (d.jobs || []).filter(j => j.status !== "done");
+  go("home", false);
 }
-function rememberFocus(){
-  const st=view(); const key = st.v==="home"?"home":st.v==="list"?"list:"+st.k:null;
-  if(!key) return; const i=focusables().indexOf(document.activeElement); if(i>=0) focusMemory[key]=i;
+const LISTS = {
+  today:  {title:"Today",        test:isToday,                        c:"orange"},
+  week:   {title:"Next 7 days",  test:inWeek,                         c:"blue"},
+  late:   {title:"Past due",     test:isOverdue,                      c:"red"},
+  action: {title:"Needs action", test:j => j.status==="action" || j.status==="waiting", c:"amber"},
+  all:    {title:"All open",     test:() => true,                     c:""}
+};
+const HOME_TILES = ["today","week","late","action"];
+function paintHome(){
+  const t = new Date();
+  $("#today").textContent = `${DOW[t.getDay()]} ${t.getMonth()+1}/${t.getDate()}`;
+  const lc = data.lastChecked ? new Date(data.lastChecked) : null;
+  $("#sync").textContent = lc ? `Updated ${DOW[lc.getDay()]} ${lc.getMonth()+1}/${lc.getDate()} ${lc.toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})} · ${jobs.length} open` : `${jobs.length} open jobs`;
+  $("#tiles").innerHTML = HOME_TILES.map((k,i) => {
+    const L = LISTS[k], items = jobs.filter(L.test);
+    const first = sortJobs(items)[0];
+    return `<button class="tile f ${L.c}" data-i="${i}" data-list="${k}">
+      <span class="n">${items.length}</span>
+      <span><span class="l">${L.title}</span><br><span class="s">${first?esc(first.short||first.title):"Nothing"}</span></span>
+    </button>`;
+  }).join("");
+  const b = $(`#tiles [data-i="${homeIdx}"]`); b && b.focus();
 }
+function sortJobs(a){ return a.slice().sort((x,y) => (keyDate(x)||"9999").localeCompare(keyDate(y)||"9999") || (x.title||"").localeCompare(y.title||"")); }
+
+/* ---------- list ---------- */
+function buildList(){ const L = LISTS[listKey] || LISTS.all; listItems = sortJobs(jobs.filter(L.test)); }
+function whenOf(j){
+  if(isOverdue(j)) return [`Due ${short(j.due)}`, "var(--red)"];
+  if(j.start && j.end && isToday(j)) return [`thru ${rel(j.end)}`, "var(--orange)"];
+  const k = keyDate(j); if(!k) return ["—","var(--faint)"];
+  const n = daysTo(k); return [(j.due && !j.start ? "Due " : "") + rel(k), n<=1 ? "var(--orange)" : "var(--ink)"];
+}
+function paintList(){
+  const L = LISTS[listKey] || LISTS.all;
+  $("#listTitle").textContent = L.title;
+  const pages = Math.max(1, Math.ceil(listItems.length / ROWS_PER_PAGE));
+  listIdx = Math.min(Math.max(0, listIdx), Math.max(0, listItems.length-1));
+  const p = Math.floor(listIdx / ROWS_PER_PAGE);
+  $("#listPg").textContent = listItems.length ? `${listIdx+1} of ${listItems.length}` : "";
+  if(!listItems.length){ $("#rows").innerHTML = `<div class="empty">Nothing here.</div>`; return; }
+  const slice = listItems.slice(p*ROWS_PER_PAGE, p*ROWS_PER_PAGE + ROWS_PER_PAGE);
+  $("#rows").innerHTML = slice.map((j,i) => {
+    const [w, wc] = whenOf(j), sc = (STATUS[j.status]||STATUS.open)[1];
+    return `<div class="row f" tabindex="0" data-i="${p*ROWS_PER_PAGE+i}" style="--c:${sc};--c2:${wc}">
+      <div class="t">${esc(j.short || j.title)}</div><div class="w">${esc(w)}</div>
+      <div class="m">${esc([j.site, j.ref].filter(Boolean).join(" · "))}</div></div>`;
+  }).join("");
+  $("#listHint").textContent = pages > 1 ? `Page ${p+1}/${pages} · pinch to open · back to return` : "Pinch to open · back to return";
+  const r = $(`#rows [data-i="${listIdx}"]`); r && r.focus();
+}
+
+/* ---------- detail ---------- */
+function blocksFor(j){
+  const st = STATUS[j.status] || STATUS.open, b = [];
+  b.push({cls:"big", v:j.title});
+  const when = [];
+  if(j.start) when.push(j.end && j.end !== j.start ? `${rel(j.start)} ${short(j.start)} – ${rel(j.end)} ${short(j.end)}` : `${rel(j.start)} ${short(j.start)}`);
+  if(j.due) when.push(`Due ${rel(j.due)} ${short(j.due)}`);
+  if(when.length) b.push({k:"When", v:when.join(" · ")});
+  if(j.site) b.push({k:"Site", v:j.site});
+  if(j.next) b.push({cls:"next", k:"Next", v:j.next});
+  if(j.contact) b.push({k:"Contact", v:j.contact});
+  if(j.ref || j.client) b.push({k:"Ref", v:[j.ref, j.client].filter(Boolean).join(" · ")});
+  if(j.scope) b.push({k:"Scope", v:j.scope});
+  if(j.notes) b.push({k:"Notes", v:j.notes});
+  (j.updates||[]).slice().reverse().forEach(u => b.push({k:`Update ${short(u.on)}`, v:u.text}));
+  return {status:st, blocks:b};
+}
+const blkHtml = x => `<div class="blk ${x.cls||""}">${x.k?`<div class="k">${esc(x.k)}</div>`:""}<div class="v">${esc(x.v)}</div></div>`;
+function buildDetail(){
+  const {blocks} = blocksFor(detailJob);
+  const m = $("#measure"), H = 552 - 44 - 28 - 8, GAP = 12;
+  const pages = []; let cur = [], used = 0;
+  const h = html => { m.innerHTML = html; return m.firstElementChild.offsetHeight; };
+  const queue = blocks.slice();
+  while(queue.length){
+    const x = queue.shift();
+    const hh = h(blkHtml(x));
+    const need = (cur.length ? GAP : 0) + hh;
+    if(used + need <= H){ cur.push(x); used += need; continue; }
+    if(hh > H || (cur.length && H - used > 120)){
+      // split long text at sentence/word boundary to fill remaining space
+      const room = cur.length ? H - used - GAP : H;
+      const words = x.v.split(" "); let lo = 1, hi = words.length - 1, best = 0;
+      while(lo <= hi){ const mid = (lo+hi)>>1; if(h(blkHtml({...x, v:words.slice(0,mid).join(" ")+" …"})) <= room){ best = mid; lo = mid+1; } else hi = mid-1; }
+      if(best > 0){
+        cur.push({...x, v:words.slice(0,best).join(" ")+" …"});
+        queue.unshift({...x, k:(x.k||"")+" (cont.)", v:words.slice(best).join(" ")});
+        pages.push(cur); cur = []; used = 0; continue;
+      }
+    }
+    if(cur.length){ pages.push(cur); cur = []; used = 0; queue.unshift(x); }
+    else { cur.push(x); pages.push(cur); cur = []; used = 0; }
+  }
+  if(cur.length) pages.push(cur);
+  m.innerHTML = "";
+  dPages = pages; dIdx = 0;
+}
+function paintDetail(){
+  const st = STATUS[detailJob.status] || STATUS.open;
+  const s = $("#dStatus"); s.textContent = st[0]; s.style.setProperty("--c", st[1]);
+  $("#dPg").textContent = dPages.length > 1 ? `${dIdx+1} / ${dPages.length}` : "";
+  $("#dpage").innerHTML = dPages[dIdx].map(blkHtml).join("");
+  $("#dpage").focus();
+}
+
+/* ---------- input ---------- */
+function activate(el){
+  if(view === "lock"){ const k = el.closest("[data-k]"); if(k){ keyIdx = +k.dataset.i; pressKey(k.dataset.k); } return; }
+  if(view === "home"){ const t = el.closest("[data-list]"); if(t){ homeIdx = +t.dataset.i; listKey = t.dataset.list; listIdx = 0; buildList(); go("list", true); } return; }
+  if(view === "list"){ const r = el.closest("[data-i]"); if(r && listItems[+r.dataset.i]){ listIdx = +r.dataset.i; history.replaceState({...history.state, listIdx}, ""); detailJob = listItems[listIdx]; buildDetail(); go("detail", true); } return; }
+}
+document.addEventListener("click", e => activate(e.target));
 document.addEventListener("keydown", e => {
-  if(e.target.tagName==="INPUT") return;
-  const det = document.getElementById("det");
-  if(det && (e.key==="ArrowDown"||e.key==="ArrowUp")){
-    e.preventDefault(); det.scrollTop += (e.key==="ArrowDown"?1:-1)*150; updateMore(); return;
+  const k = e.key;
+  if(k === "Enter" || k === " "){ e.preventDefault(); if(view === "detail"){ if(dIdx < dPages.length-1){ dIdx++; paintDetail(); } return; } activate(document.activeElement || document.body); return; }
+  if(k === "Escape" || k === "Backspace"){
+    if(view === "lock"){ if(k === "Backspace"){ e.preventDefault(); pressKey("del"); } return; }
+    if(view !== "home"){ e.preventDefault(); history.back(); } return;
   }
-  if(e.key!=="ArrowDown" && e.key!=="ArrowUp") return;
-  const fs=focusables(); if(!fs.length) return;
+  if(view === "lock" && /^[0-9]$/.test(k)){ e.preventDefault(); pressKey(k); return; }
+  const dir = {ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0]}[k];
+  if(!dir) return;
   e.preventDefault();
-  let i=fs.indexOf(document.activeElement);
-  i = i<0 ? 0 : Math.max(0, Math.min(fs.length-1, i + (e.key==="ArrowDown"?1:-1)));
-  fs[i].focus({preventScroll:true}); fs[i].scrollIntoView({block:"nearest"});
-  rememberFocus();
-});
-document.addEventListener("click", rememberFocus, true);
-window.addEventListener("popstate", () => { try{ speechSynthesis.cancel(); }catch(_){} render(); });
-
-/* ---------- PIN + load ---------- */
-let PACK = null;
-function pinScreen(msg){
-  app.innerHTML = `<div class="top"><h1>RB Jobs</h1></div>
-    <div class="scroll" style="justify-content:center;gap:18px">
-      <div class="msg" style="font-size:22px;color:var(--ink)">Enter your PIN</div>
-      <input id="pin" class="f" type="number" inputmode="numeric" autocomplete="off" aria-label="PIN">
-      <button class="btn f small-btn" id="go">Unlock</button>
-      <div class="msg" id="msg">${esc(msg||"")}</div>
-    </div>`;
-  const inp=document.getElementById("pin");
-  const tryIt = async () => {
-    const pin=(inp.value||"").replace(/\D/g,""); if(!pin) return;
-    document.getElementById("msg").textContent="Checking…";
-    try{ DATA = await decrypt(PACK, pin); store.set(PIN_KEY, pin); history.replaceState({v:"home"},""); render(); }
-    catch(_){ document.getElementById("msg").textContent="That PIN didn't work."; inp.value=""; inp.focus(); }
-  };
-  inp.addEventListener("change", tryIt);
-  inp.addEventListener("keydown", e => { if(e.key==="ArrowDown"){ e.preventDefault(); document.getElementById("go").focus(); } });
-  document.getElementById("go").onclick = tryIt;
-  inp.focus();
-}
-
-async function load(){
-  try{
-    const r = await fetch("jobs.enc.json?t="+Date.now(), {cache:"no-store"});
-    if(!r.ok) throw new Error(r.status);
-    PACK = await r.json();
-  }catch(_){
-    app.innerHTML = `<div class="empty">Couldn't load jobs.<br>Check your phone's connection.</div>`; return;
+  const [dx, dy] = dir;
+  if(view === "lock"){
+    let r = Math.floor(keyIdx/3), c = keyIdx%3;
+    r = (r + dy + 4) % 4; c = (c + dx + 3) % 3; keyIdx = r*3 + c; focusKey();
+  } else if(view === "home"){
+    let r = Math.floor(homeIdx/2), c = homeIdx%2;
+    r = Math.min(1, Math.max(0, r+dy)); c = Math.min(1, Math.max(0, c+dx)); homeIdx = r*2 + c;
+    $(`#tiles [data-i="${homeIdx}"]`).focus();
+  } else if(view === "list"){
+    if(!listItems.length) return;
+    const step = dy ? dy : dx * ROWS_PER_PAGE;
+    listIdx = Math.min(listItems.length-1, Math.max(0, listIdx + step));
+    paintList();
+  } else if(view === "detail"){
+    const n = Math.min(dPages.length-1, Math.max(0, dIdx + (dx || dy)));
+    if(n !== dIdx){ dIdx = n; paintDetail(); }
   }
-  const pin = store.get(PIN_KEY);
-  if(pin){
-    try{ DATA = await decrypt(PACK, pin); if(!history.state) history.replaceState({v:"home"},""); render(); return; }
-    catch(_){ store.del(PIN_KEY); }
-  }
-  pinScreen();
-}
-load();
-// refresh data when the app comes back into view
-document.addEventListener("visibilitychange", async () => {
-  if(document.visibilityState!=="visible" || !DATA) return;
-  try{
-    const r = await fetch("jobs.enc.json?t="+Date.now(), {cache:"no-store"}); if(!r.ok) return;
-    const p = await r.json(); if(PACK && p.ct===PACK.ct) return;
-    PACK = p; DATA = await decrypt(PACK, store.get(PIN_KEY)||""); rememberFocus(); render();
-  }catch(_){}
 });
+
+/* ---------- boot ---------- */
+(async () => {
+  history.replaceState({v:"lock"}, "");
+  paintLock();
+  await autoUnlock();
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(() => {}); }
+})();
 </script>
 </body>
 </html>
